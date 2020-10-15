@@ -1,0 +1,8 @@
+
+from django.urls import path, include
+from post.api.views import PostListApiView
+
+urlpatterns = [
+
+    path('list', PostListApiView.as_view(), name='list')
+]
