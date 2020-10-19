@@ -7,15 +7,19 @@ from django.utils.text import slugify
 
 
 class Post(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     title = models.CharField(max_length=120)
     content = models.TextField()
     draft = models.BooleanField(default=False)
     created = models.DateTimeField(editable=False)
-    modified = models.DateTimeField()
+    modified = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, max_length=150, editable=False)
-    image = models.ImageField(upload_to='media/post', null=True, blank=True)
+    image = models.ImageField(upload_to='post', null=True, blank=True)
+    modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='modified_by')
 
+
+
+    
     def __str__(self):
         return self.title
 
