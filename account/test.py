@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 
 
 
+
 #dogru veriler ile kayıt işlemi yap
 # şifre invalid olabilir
 # kullnıcı adı kullanılmış olabilir
@@ -126,12 +127,16 @@ class UserChangePasswordTest(APITestCase):
     url_token = reverse("token_obtain_pair")
 
     def setUp(self):
+        "Test için kullanıcı oluştur"
+        
         self.username = "testuser"
         self.password = "testpassword123"
         self.user = User.objects.create_user(username=self.username,
                                              password=self.password)
 
     def test_login_with_token(self):
+        "token ile login olup access token alındı mı?"
+
         data = {
                 "username" : "testuser",
                 "password" : "testpassword123"
@@ -146,7 +151,7 @@ class UserChangePasswordTest(APITestCase):
 
 
     def test_is_authenticated(self):
-        "oturum açılmadan girilirse hata ver"
+        "oturum açılmadan şifre değiştirmeye girilirse hata ver"
         response = self.client.get(self.url)
         self.assertEqual(401, response.status_code)
 
@@ -184,6 +189,10 @@ class UserChangePasswordTest(APITestCase):
 
 
 
+       
+
+        
+    
 class UserProfileUpdate(APITestCase):
 
     url = reverse("account:me")
@@ -231,13 +240,3 @@ class UserProfileUpdate(APITestCase):
     #    #self.assertEqual(json.loads(response.content), data)
 
 
-
-
-
-
-
-
-        
-
-        
-    
