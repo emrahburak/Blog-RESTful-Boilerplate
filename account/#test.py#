@@ -222,25 +222,22 @@ class UserProfileUpdate(APITestCase):
         self.assertEqual(401, response.status_code)
 
 
-    #def test_with_empty_information(self):
-    #    print('Before test')
-    #    self.test_login_with_token()
-    #    print('after test')
-    #    data = {
-    #        "id": 1,
-    #        "first_name": "",
-    #        "last_name": "",
-    #        "profile": {
-    #            "id": 2,
-    #            "note": "pragma not",
-    #            "twitter": "pragma twitter"
-    #        }
-    #    }
+    def test_with_empty_information(self):
+        self.test_login_with_token()
+        data = {
+            "id": 1,
+            "first_name": "",
+            "last_name": "",
+            "profile": {
+                "id": 2,
+                "note": "pragma not",
+                "twitter": "pragma twitter"
+            }
+        }
 
-    #    print('before put')
-    #    response = self.client.put(self.url, data, format='json')
-    #    print('after put')
-    #    #self.assertEqual(200, response.status_code)
-    #    #self.assertEqual(json.loads(response.content), data)
+        response = self.client.put(self.url, data, format='json')
+        print(response.data)
+        #self.assertEqual(200, response.status_code)
+        #self.assertEqual(json.loads(response.content), data)
 
 

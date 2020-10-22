@@ -12,6 +12,7 @@ from rest_framework.generics import (ListAPIView,
                                      RetrieveUpdateAPIView,
                                      DestroyAPIView,
                                      CreateAPIView)
+
 from rest_framework.mixins import DestroyModelMixin
 
 
@@ -34,34 +35,29 @@ class PostDetailApiView(RetrieveAPIView):
     lookup_field = 'slug'
 
 
-class PostUpdateApiView(RetrieveUpdateAPIView, DestroyModelMixin):
+  
+class PostDeleteApiView(DestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    lookup_field = 'slug'
+    permission_classes = [IsOwner]
+
+
+class PostUpdateApiView(RetrieveUpdateAPIView,DestroyModelMixin):
     queryset = Post.objects.all()
     serializer_class = PostUpdateCreateSerializer
     lookup_field = 'slug'
     permission_classes = [IsOwner]
 
+
+
+
     def perform_update(self, serializer):
-        serializer.save(modified_by = self.request.user)
+        serializer.save(user=self.request.user)
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
-    
-#class PostDeleteApiView(DestroyAPIView):
-#    queryset = Post.objects.all()
-#    serializer_class = PostSerializer
-#    lookup_field = 'slug'
-#    permission_classes = [IsOwner]
-#
-#
-#class PostUpdateApiView(RetrieveUpdateAPIView):
-#    queryset = Post.objects.all()
-#    serializer_class = PostUpdateCreateSerializer
-#    lookup_field = 'slug'
-#    permission_classes = [IsOwner]
-#
-#
-#    def perform_update(self, serializer):
-#        serializer.save(user=self.request.user)
+
 
 
 class PostCreateApiView(CreateAPIView):
