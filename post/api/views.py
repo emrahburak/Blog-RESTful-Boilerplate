@@ -1,78 +1,40 @@
 
-
 from post.models import Post
 from post.api.permissions import IsOwner #custom permissions
 from post.api.paginations import PostPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.filters import SearchFilter, OrderingFilter
 from post.api.serializers import (PostSerializer,
+                                  UserSerializer,
                                   PostUpdateCreateSerializer)
-from rest_framework.generics import (ListAPIView,
-                                     RetrieveAPIView,
-                                     RetrieveUpdateAPIView,
-                                     DestroyAPIView,
-                                     CreateAPIView)
-from rest_framework.mixins import DestroyModelMixin
+from rest_framework.decorators import api_view
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from django.contrib.auth.models import User
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 
-class PostListApiView(ListAPIView):
-    serializer_class = PostSerializer
-    filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('title','content')
-    pagination_class = PostPagination
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'users': reverse('user-list', request=request, format=format),
+        'posts': reverse('post-list', request=request, format=format)
 
-
-    def get_queryset(self):
-        queryset = Post.objects.filter(draft=False).order_by('-created')
-        return queryset
-
-
-
-class PostDetailApiView(RetrieveAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    lookup_field = 'slug'
-
-
-class PostUpdateApiView(RetrieveUpdateAPIView, DestroyModelMixin):
-    queryset = Post.objects.all()
-    serializer_class = PostUpdateCreateSerializer
-    lookup_field = 'slug'
-    permission_classes = [IsOwner]
-
-    def perform_update(self, serializer):
-        serializer.save(modified_by = self.request.user)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+        })
     
-#class PostDeleteApiView(DestroyAPIView):
-#    queryset = Post.objects.all()
-#    serializer_class = PostSerializer
-#    lookup_field = 'slug'
-#    permission_classes = [IsOwner]
-#
-#
-#class PostUpdateApiView(RetrieveUpdateAPIView):
-#    queryset = Post.objects.all()
-#    serializer_class = PostUpdateCreateSerializer
-#    lookup_field = 'slug'
-#    permission_classes = [IsOwner]
-#
-#
-#    def perform_update(self, serializer):
-#        serializer.save(user=self.request.user)
 
 
-class PostCreateApiView(CreateAPIView):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class PostViewSet(viewsets.ModelViewSet):
+
     queryset = Post.objects.all()
-    serializer_class = PostUpdateCreateSerializer
-    permission_classes = [IsAuthenticated]
-
+    serializer_class = PostSerializer
+    permission_classes = [IsOwner]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-
-
-    

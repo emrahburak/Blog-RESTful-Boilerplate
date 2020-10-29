@@ -1,0 +1,42 @@
+
+from django.contrib.auth.models import User
+from rest_framework import serializers
+from corpus.models import Corpus
+
+
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    corpus = serializers.HyperlinkedRelatedField(many=True
+                                                 ,view_name='corpus-detail'
+                                                 ,lookup_field='slug'
+                                                 ,read_only=True)
+
+
+    class Meta:
+        model = User
+        fields = ['url','id', 'username', 'corpus']
+
+
+
+
+class CorpusSerializer(serializers.HyperlinkedModelSerializer):
+    "modified_by da yapılması lazım"
+    owner = serializers.ReadOnlyField(source='owner.username')
+    url = serializers.HyperlinkedIdentityField(view_name='corpus-detail'
+                                               ,lookup_field='slug'
+                                               ,read_only=True)
+    
+
+    class Meta:
+        model = Corpus
+        fields = (
+            'id',
+            'url',
+            'owner',
+            'title',
+            'content',
+            'draft',
+            'modified_by'
+            )
+    

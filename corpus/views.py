@@ -1,0 +1,103 @@
+
+from django.contrib.auth.models import User
+from corpus.models import Corpus
+from corpus.serializers import CorpusSerializer, UserSerializer
+from corpus.permissions import IsOwnerOrReadOnly
+from rest_framework import mixins
+from rest_framework import generics
+from rest_framework import permissions
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from rest_framework import viewsets
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    automaticli provide 'list and 'detail' ancitions.
+    """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class CorpusViewSet(viewsets.ModelViewSet):
+
+    """
+       This viewset automatically provides `list`, `create`, `retrieve`,
+    `update` and `destroy` actions.
+    """
+    queryset = Corpus.objects.all()
+    serializer_class = CorpusSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly
+                          ,IsOwnerOrReadOnly)
+    lookup_field = 'slug'
+
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+
+
+
+
+
+
+#@api_view(['GET'])
+#def api_root(request, format=None):
+#    return Response({
+#        'users': reverse('user-list', request=request, format=format),
+#        'corpus': reverse('corpus-list', request=request, format=format)
+#        })
+#          
+
+
+#class UserList(generics.ListAPIView):
+#    queryset = User.objects.all()
+#    serializer_class = UserSerializer
+#
+#
+#class UserDetail(generics.RetrieveAPIView):
+#    queryset = User.objects.all()
+#    serializer_class = UserSerializer
+#
+#
+#
+#
+#class CorpusList(mixins.ListModelMixin,
+#                  mixins.CreateModelMixin,
+#                  generics.GenericAPIView):
+#    queryset = Corpus.objects.all()
+#    serializer_class = CorpusSerializer
+#    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+#
+#    def perform_create(self, serializer):
+#        serializer.save(owner=self.request.user)
+#
+#    def get(self, request, *args, **kwargs):
+#        return self.list(request, *args, **kwargs)
+#
+#    def post(self, request, *args, **kwargs):
+#        return self.create(request, *args, **kwargs)
+#
+#    
+#
+#
+#class CorpusDetail(mixins.RetrieveModelMixin,
+#                    mixins.UpdateModelMixin,
+#                    mixins.DestroyModelMixin,
+#                    generics.GenericAPIView):
+#    queryset = Corpus.objects.all()
+#    serializer_class = CorpusSerializer
+#    lookup_field = 'slug'
+#    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
+#                          IsOwnerOrReadOnly]
+#
+#    def get(self, request, *args, **kwargs):
+#        return self.retrieve(request, *args, **kwargs)
+#
+#    def put(self, request, *args, **kwargs):
+#        return self.update(request, *args, **kwargs)
+#
+#    def delete(self, request, *args, **kwargs):
+#        return self.destroy(request, *args, **kwargs)

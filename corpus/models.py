@@ -5,16 +5,16 @@ from django.utils.text import slugify
 
 
 
-class Post(models.Model):
-    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='post')
+class Corpus(models.Model):
+    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='corpus')
     title = models.CharField(max_length=120)
-    content = models.TextField()
-    draft = models.BooleanField(default=False)
+    content = models.TextField(editable=True)
+    draft = models.BooleanField(default=False, editable=False)
     created = models.DateTimeField(editable=False)
     modified = models.DateTimeField(editable=False)
     slug = models.SlugField(unique=True, max_length=150, editable=False)
-    image = models.ImageField(upload_to='post', null=True, blank=True)
-    modified_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, related_name='modified_by')
+    image = models.ImageField(upload_to='corpus', null=True, blank=True)
+    modified_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, editable=False, related_name='modified')
 
     class Meta:
         ordering = ['-created']
@@ -29,7 +29,7 @@ class Post(models.Model):
         unique = slug
         number = 1
 
-        while Post.objects.filter(slug=unique).exists():
+        while Corpus.objects.filter(slug=unique).exists():
             unique = '{}-{}'.format(slug,number)
             number += 1
         return unique
@@ -43,4 +43,4 @@ class Post(models.Model):
 
         self.modified = timezone.now()
         self.slug = self.get_slug()
-        return super(Post, self).save(*args, **kwargs)
+        return super(Corpus, self).save(*args, **kwargs)

@@ -1,32 +1,39 @@
 
 from rest_framework import serializers
 from post.models import Post
+from django.contrib.auth.models import User
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    posts = serializers.HyperlinkedRelatedField(many=True,
+                                                view_name='post-detail',
+                                                read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('url', 'id', 'username', 'posts')
 
 
-class PostSerializer(serializers.ModelSerializer):
+class PostSerializer(serializers.HyperlinkedModelSerializer):
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name = 'post:detail',
-        lookup_field = 'slug'
+    owner = serializers.ReadOnlyField(source='owner.username')
+    highlight = serializers.HyperlinkedIdentityField(
+        view_name = 'post-slug',
 
         )
-    
-    username = serializers.SerializerMethodField() 
 
     class Meta:
         model = Post
         fields = (
-            'username',
+            'url',
+            'id',
+            'highlight',
+            'owner',
             'title',
             'content',
             'image',
-            'url',
             'created',
             'modified_by'
             )
-
-    def get_username(self, obj):
-        return str(obj.user.username)
 
 
 class PostUpdateCreateSerializer(serializers.ModelSerializer):
