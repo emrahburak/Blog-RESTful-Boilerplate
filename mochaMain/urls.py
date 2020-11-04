@@ -28,7 +28,7 @@ urlpatterns = [
     #path('', include('post.api.urls')),
     #path('api/post/', include('post.api.urls',namespace='post')),
     #path('api/user/', include('account.api.urls',namespace='account')),
-    #path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    #path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,15 +1,30 @@
 
+
 from django.contrib.auth.models import User
 from corpus.models import Corpus
 from corpus.serializers import CorpusSerializer, UserSerializer
 from corpus.permissions import IsOwnerOrReadOnly
-from rest_framework import mixins
-from rest_framework import generics
-from rest_framework import permissions
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from django_filters import FilterSet
+from django_filters import rest_framework as filters
+
+
+
+class OwnerUsernameFilter(FilterSet):
+    """
+    Custom Filter for owner.username
+    """
+
+    username = filters.CharFilter('owner__username')
+
+
+    class Meta:
+        model = Corpus
+        fields = ('username',)
+
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -18,6 +33,10 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    filter_backends = (DjangoFilterBackend,SearchFilter)
+    filter_fields = ('username',)
+    search_fields = ('username',)
+    ordering = ['username']
 
 
 class CorpusViewSet(viewsets.ModelViewSet):
@@ -28,76 +47,11 @@ class CorpusViewSet(viewsets.ModelViewSet):
     """
     queryset = Corpus.objects.all()
     serializer_class = CorpusSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly
-                          ,IsOwnerOrReadOnly)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     lookup_field = 'slug'
-
+    filter_backends = (DjangoFilterBackend,SearchFilter)
+    filter_class = OwnerUsernameFilter
+    search_fields = ('owner__username',)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
-
-
-
-
-
-
-
-
-#@api_view(['GET'])
-#def api_root(request, format=None):
-#    return Response({
-#        'users': reverse('user-list', request=request, format=format),
-#        'corpus': reverse('corpus-list', request=request, format=format)
-#        })
-#          
-
-
-#class UserList(generics.ListAPIView):
-#    queryset = User.objects.all()
-#    serializer_class = UserSerializer
-#
-#
-#class UserDetail(generics.RetrieveAPIView):
-#    queryset = User.objects.all()
-#    serializer_class = UserSerializer
-#
-#
-#
-#
-#class CorpusList(mixins.ListModelMixin,
-#                  mixins.CreateModelMixin,
-#                  generics.GenericAPIView):
-#    queryset = Corpus.objects.all()
-#    serializer_class = CorpusSerializer
-#    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-#
-#    def perform_create(self, serializer):
-#        serializer.save(owner=self.request.user)
-#
-#    def get(self, request, *args, **kwargs):
-#        return self.list(request, *args, **kwargs)
-#
-#    def post(self, request, *args, **kwargs):
-#        return self.create(request, *args, **kwargs)
-#
-#    
-#
-#
-#class CorpusDetail(mixins.RetrieveModelMixin,
-#                    mixins.UpdateModelMixin,
-#                    mixins.DestroyModelMixin,
-#                    generics.GenericAPIView):
-#    queryset = Corpus.objects.all()
-#    serializer_class = CorpusSerializer
-#    lookup_field = 'slug'
-#    permission_classes = [permissions.IsAuthenticatedOrReadOnly,
-#                          IsOwnerOrReadOnly]
-#
-#    def get(self, request, *args, **kwargs):
-#        return self.retrieve(request, *args, **kwargs)
-#
-#    def put(self, request, *args, **kwargs):
-#        return self.update(request, *args, **kwargs)
-#
-#    def delete(self, request, *args, **kwargs):
-#        return self.destroy(request, *args, **kwargs)

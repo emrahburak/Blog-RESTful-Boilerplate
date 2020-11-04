@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corpus',
     'account',
+    'corsheaders',
+    'django_filters'
 
 ]
 
@@ -53,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 REST_FRAMEWORK = {
@@ -66,7 +70,7 @@ REST_FRAMEWORK = {
     
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination'
         ,
-     'PAGE_SIZE': 10
+    'PAGE_SIZE': 10
 
 }
 
@@ -75,6 +79,12 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME' : timedelta(minutes=15)
 
     }
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+#CORS_ALLOWED_ORIGINS = [
+#    "http://localhost:8080",
+#]
 
 #REST_FRAMEWORK = {
 #    # Use Django's standard `django.contrib.auth` permissions,
